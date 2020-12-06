@@ -1,0 +1,51 @@
+---
+- name: install required packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg2
+      - software-properties-common
+
+- name: get apt key from docker
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: add docker official source for debian
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ debian.version }} stable
+    state: present
+
+- name: use docker source instead of debian's
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: install docker
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - docker-ce
+
+- name: get latest docker-compose release
+  uri:
+    url: https://api.github.com/repos/docker/compose/releases/latest
+    return_content: true
+  register: json_reponse
+
+- name: "installing docker-compose {{ json_reponse.json.tag_name }}"
+  loop: "{{ json_reponse.json.assets }}"
+  when: "'docker-compose-' + ansible_system|string + '-' + ansible_userspace_architecture|string in item.name and '.sha' not in item.name"
+  get_url:
+    url: "{{ item.browser_download_url }}"
+    dest: /usr/local/bin/docker-compose
+    mode: 'a+x'
