@@ -11,7 +11,8 @@ This role requires a debian compliant system such as ubuntu.
 Role Variables
 --------------
 
-No variables
+debian:
+    version: buster
 
 Dependencies
 ------------
@@ -23,7 +24,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: cowops.debian-docker }
+         - { role: cowops.debian-docker, debian.version: buster }
 
 Tasks
 -----
