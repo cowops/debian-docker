@@ -44,7 +44,7 @@
 
 - name: "installing docker-compose {{ json_reponse.json.tag_name }}"
   loop: "{{ json_reponse.json.assets }}"
-  when: "'docker-compose-' + ansible_system|string + '-' + ansible_userspace_architecture|string in item.name and '.sha' not in item.name"
+  when: "'docker-compose-' + ansible_system|string|lower + '-' + ansible_userspace_architecture|string|lower in item.name and '.sha' not in item.name"
   get_url:
     url: "{{ item.browser_download_url }}"
     dest: /usr/local/bin/docker-compose
